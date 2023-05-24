@@ -7,6 +7,8 @@ LL.region.queryBuilder = LL.region.queryBuilder || {};
 LL.region.queryBuilder.initBuilder = function (config, initJs) {
     apex.debug.info('LL - Query Builder: ', config);
 
+    const lang_code = apex.locale.getLanguage();
+
     // execute the initJs function
     if (initJs && typeof initJs == 'function') {
         initJs.call(this, config);
@@ -24,22 +26,29 @@ LL.region.queryBuilder.initBuilder = function (config, initJs) {
         $(queryBuilderElement).queryBuilder('setRulesFromSQL', sql);
     }
 
-    function getSQL() {
-        return $(queryBuilderElement).queryBuilder('getSQL').sql;
+    function getResult() {
+        return $(queryBuilderElement).queryBuilder('getSQL', config.exportFormat);
     }
 
     function submit() {
+        if (config.errorMessage) {
+            return;
+        }
+        const result = getResult();
+        if (!result) {
+            apex.event.gCancelFlag = true;
+            return;
+        }
         apex.server.plugin(
             config.pluginAjaxId,
             {
-                x01: getSQL()
+                x01: result.sql,
+                x02: JSON.stringify(result.params)
             },
             {
                 dataType: 'json',
                 success: function (jsonData) {
-                    if (apex.debug.getLevel() != apex.debug.LOG_LEVEL.OFF) {
-                        apex.debug.info(`${CSS_PREFIX} jsonData: ${JSON.stringify(jsonData)}`);
-                    }
+                    apex.debug.info(`${CSS_PREFIX} jsonData: ${JSON.stringify(jsonData)}`);
 
                     if (typeof jsonData.status == 'boolean' && !jsonData.status) {
                         apex.message.showErrors([{
@@ -55,10 +64,8 @@ LL.region.queryBuilder.initBuilder = function (config, initJs) {
                     }
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
-                    if (apex.debug.getLevel() != apex.debug.LOG_LEVEL.OFF) {
-                        apex.debug.error(`${CSS_PREFIX} ajaxOptions: ${ajaxOptions}`);
-                        apex.debug.error(`${CSS_PREFIX} thrownError: ${thrownError}`);
-                    }
+                    apex.debug.error(`${CSS_PREFIX} ajaxOptions: ${ajaxOptions}`);
+                    apex.debug.error(`${CSS_PREFIX} thrownError: ${thrownError}`);
 
                     apex.message.showErrors([{
                         type: 'error',
@@ -71,30 +78,22 @@ LL.region.queryBuilder.initBuilder = function (config, initJs) {
     }
 
     if (config.errorMessage) {
-        // First clear the errors
         apex.message.clearErrors();
-
-        // Now show new errors
-        apex.message.showErrors([   
+        apex.message.showErrors([
             {
-                type:       "error",
-                location:   "page",
-                message:    config.errorMessage,
-                unsafe:     false
+                type: "error",
+                location: "page",
+                message: config.errorMessage,
+                unsafe: false
             }
         ]);
     } else {
         // init       
         $(queryBuilderElement).queryBuilder(
             {
-                plugins: [
-                    'sortable',
-                    'sql-support',
-                    'not-group',
-					'filter-description'
-                ],
+                plugins: config.plugins,
                 filters: config.filters,
-                lang_code: apex.locale.getLanguage()
+                lang_code: lang_code
             }
         );
     }
@@ -103,18 +102,21 @@ LL.region.queryBuilder.initBuilder = function (config, initJs) {
         setRulesFromSQL(config.expression);
     }
 
+    apex.jQuery(apex.gPageContext$)
+        .on("apexbeforepagesubmit", function () {
+            apex.region(regionId).submit();
+        });
+
     // plugin's public interface
     apex.region.create(regionId, {
-        getSQL() {
-            return getSQL();
+        getResult() {
+            return getResult();
         },
         setRulesFromSQL(sql) {
             setRulesFromSQL(sql);
         },
         submit() {
-            if (!config.errorMessage) {
-                submit();
-            }
+            submit();
         }
     });
 }

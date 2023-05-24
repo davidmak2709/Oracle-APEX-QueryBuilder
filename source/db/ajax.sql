@@ -31,8 +31,8 @@ begin
         p_sql_parameters  => l_plsql_parameters 
     );
 
-    b_status    := apex_application.g_x02 IS NULL;
-    l_message   := apex_application.g_x02;
+    b_status    := apex_application.g_x03 IS NULL;
+    l_message   := apex_application.g_x03;
 
     -- creating the JSON
     apex_json.initialize_clob_output;

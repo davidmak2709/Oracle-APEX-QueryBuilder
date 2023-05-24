@@ -718,7 +718,7 @@ QueryBuilder.DEFAULTS = {
         add_rule: 'fa fa-plus',
         remove_group: 'fa fa-trash-o',
         remove_rule: 'fa fa-trash-o',
-        error: 'fa fa-exclamation-triangle fa-lg'
+        error: 'fa fa-exclamation-triangle'
     }
 };
 
@@ -2990,7 +2990,7 @@ QueryBuilder.templates.group = `
                                 <div class="apex-item-grid-row">
                                     {{~ it.conditions: condition }}
                                         <div class="apex-item-option">
-                                            <input type="radio" id="{{= it.group_id }}_{{= condition }}_cond" name="{{= it.group_id }}_cond" data-display="{{= it.translate("conditions", condition) }}" value="{{= condition }}">
+                                            <input type="radio" name="{{= it.group_id }}_cond" data-display="{{= it.translate("conditions", condition) }}" value="{{= condition }}">
                                                 <label class="u-radio" for="{{= it.group_id }}_{{= condition }}_cond">{{= it.translate("conditions", condition) }}</label>
                                         </div>
                                     {{~}}
@@ -3047,7 +3047,7 @@ QueryBuilder.templates.filterSelect = `
      </div>
      <div class="t-Form-inputContainer">
          <div class="t-Form-itemWrapper">
-         <select id="{{= it.rule.id }}_filter" name="{{= it.rule.id }}_filter" class="form-control apex-item-select" style="text-indent: 0px;">
+         <select name="{{= it.rule.id }}_filter" class="form-control apex-item-select" style="text-indent: 0px;">
              {{? it.settings.display_empty_filter }}
              <option value="-1">{{= it.settings.select_placeholder }}</option>
              {{?}}
@@ -3083,7 +3083,7 @@ QueryBuilder.templates.operatorSelect = `
             </span> 
             {{?}} 
             {{ var optgroup = null; }} 
-            <select class="form-control apex-item-select {{? it.operators.length === 1 }}hidden-xxs-up{{?}}" style="text-indent: 0px;" id="{{= it.rule.id }}_operator" name="{{= it.rule.id }}_operator"> 
+            <select class="form-control apex-item-select {{? it.operators.length === 1 }}hidden-xxs-up{{?}}" style="text-indent: 0px;" name="{{= it.rule.id }}_operator"> 
                 {{~ it.operators: operator }} 
                     {{? optgroup !== operator.optgroup }} 
                         {{? optgroup !== null }}</optgroup>{{?}} 
@@ -3104,14 +3104,14 @@ QueryBuilder.templates.operatorSelect = `
 QueryBuilder.templates.ruleValueSelect = `
 <div class="t-Form-fieldContainer t-Form-fieldContainer--floatingLabel apex-item-wrapper apex-item-wrapper--select-list js-show-label"> 
     <div class="t-Form-labelContainer"> 
-        <label for="{{= it.rule.id }}_operator" id="{{= it.rule.id }}_value_LABEL" class="t-Form-label">
+        <label for="{{= it.rule.id }}_value" id="{{= it.rule.id }}_value_LABEL" class="t-Form-label">
             {{= it.translate("value") }}
         </label> 
     </div> 
     <div class="t-Form-inputContainer"> 
         <div class="t-Form-itemWrapper"> 
             {{ var optgroup = null; }} 
-            <select class="form-control apex-item-select style="text-indent: 0px;" id="{{= it.rule.id }}_value" name="{{= it.rule.id }}_value" {{? it.rule.filter.multiple }}multiple{{?}}> 
+            <select class="form-control apex-item-select style="text-indent: 0px;" name="{{= it.rule.id }}_value" {{? it.rule.filter.multiple }}multiple{{?}}> 
               {{? it.rule.filter.placeholder }}
                 <option value="{{= it.rule.filter.placeholder_value }}" disabled selected>{{= it.rule.filter.placeholder }}</option> \
               {{?}}     
@@ -3318,7 +3318,7 @@ QueryBuilder.prototype.getRuleInput = function (rule, value_id) {
         Utils.iterateOptions(filter.values, function (key, val) {
           h += `
             <div class="apex-item-option">
-              <input type="${filter.input}" id="${name + '_' + key}" name="${name}" value="${key}">
+              <input type="${filter.input}" name="${name}" value="${key}">
               <label class="u-${filter.input}" for="${name + '_' + key}">${val}</label>              
             </div>          
           `
@@ -3347,8 +3347,7 @@ QueryBuilder.prototype.getRuleInput = function (rule, value_id) {
                 <div class="apex-item-group apex-item-group--textarea">
                   <textarea name="${name}" 
                     rows="5" 
-                    cols="30" 
-                    id="${name}" 
+                    cols="30"                     
                     ${placeholder ? 'placeholder="' + placeholder + '"' : ''}
                     ${filter.size ? 'cols="' + filter.size + '"' : ''}
                     ${filter.rows ? 'rows="' + filter.rows + '"' : ''}
@@ -3371,9 +3370,8 @@ QueryBuilder.prototype.getRuleInput = function (rule, value_id) {
                   <label for="${name}" id="${name}_LABEL" class="t-Form-label">${translate('value')}</label> 
               </div> 
               <div class="t-Form-inputContainer"> 
-                  <div class="t-Form-itemWrapper"> 
-                      <input type="number" 
-                        id="${name}" 
+                  <div class="t-Form-itemWrapper">                       
+                      <input type="number"                         
                         name="${name}" 
                         class="number_field apex-item-text" 
                         value=""
@@ -3401,7 +3399,6 @@ QueryBuilder.prototype.getRuleInput = function (rule, value_id) {
               <div class="t-Form-inputContainer"> 
                   <div class="t-Form-itemWrapper"> 
                       <input type="text" 
-                        id="${name}" 
                         name="${name}" 
                         class="text_field apex-item-text" 
                         value=""
